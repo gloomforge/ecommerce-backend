@@ -1,0 +1,11 @@
+README.md
+Dockerfile
+.dockerignore
+.git
+.gitignore
+/.github/
+/.vscode
+/.idea/
+.env
+.envrc
+node_modules
