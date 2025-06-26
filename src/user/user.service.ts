@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
@@ -32,18 +32,23 @@ export class UserService {
         'Пользователь не найден. Пожалуйста , проверьте введенные данные',
       );
     }
-
     return user;
   }
 
   public async create(email: string, password: string) {
-    const user = await this.prismaService.user.create({
+    const exists = await this.prismaService.user.findUnique({ where: { email } });
+    if (exists) {
+      throw new ConflictException('Пользователь с таким email уже существует');
+    }
+
+    const newUser = await this.prismaService.user.create({
       data: {
         email,
-        password: password,
+        password,
       },
     });
 
-    return user;
+    const { password: _, ...otherData } = newUser;
+    return otherData;
   }
 }
