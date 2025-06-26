@@ -6,6 +6,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "target": "ES2023",
     "sourceMap": true,
     "outDir": "./dist",
@@ -23,6 +24,6 @@
         "@modules/*": ["src/modules/*"],
         "@prisma/__generated__": ["prisma/__generated__"],
         "@prisma/__generated__/*": ["prisma/__generated__/*"]
-    },
+    }
   }
 }
