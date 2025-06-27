@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PingModule } from '@/ping/ping.module';
 import { PrismaModule } from '@/prisma/prisma.module';
-import { SessionModule } from '@/session/session.module';
 import { AuthModule } from '@/auth/auth.module';
 
 @Module({
@@ -12,8 +10,6 @@ import { AuthModule } from '@/auth/auth.module';
       isGlobal: true,
     }),
     PrismaModule,
-    SessionModule,
-    PingModule,
     AuthModule,
   ],
 })
