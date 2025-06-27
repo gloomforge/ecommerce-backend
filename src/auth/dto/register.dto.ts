@@ -1,6 +1,10 @@
 import { IsEmail, IsString, IsNotEmpty, MinLength } from 'class-validator';
 
 export class RegisterDto {
+  @IsString({ message: 'Имя должно быть строкой' })
+  @IsNotEmpty({ message: 'Имя обязательно для заполнения' })
+  fullName: string;
+
   @IsString({ message: 'Email должен быть строкой' })
   @IsEmail({}, { message: 'Некорректный формат email' })
   @IsNotEmpty({ message: 'Email обязателен для заполнения' })
