@@ -1,12 +1,22 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
+import { Account, User } from '@prisma/__generated__';
 
 @Injectable()
 export class UserService {
   public constructor(private readonly prismaService: PrismaService) {}
 
-  public async findById(id: number) {
-    const user = await this.prismaService.user.findUnique({
+  public async findAll(): Promise<Omit<User, 'password'>[]> {
+    const users: User[] = await this.prismaService.user.findMany();
+
+    return users.map((user) => {
+      const { password: _, ...otherData } = user;
+      return otherData;
+    });
+  }
+
+  public async findById(id: number): Promise<User> {
+    const user: User | null = await this.prismaService.user.findUnique({
       where: {
         id,
       },
@@ -20,8 +30,8 @@ export class UserService {
     return user;
   }
 
-  public async findByEmail(email: string) {
-    const user = await this.prismaService.user.findUnique({
+  public async findByEmail(email: string): Promise<User> {
+    const user: User | null = await this.prismaService.user.findUnique({
       where: {
         email,
       },
@@ -35,20 +45,42 @@ export class UserService {
     return user;
   }
 
-  public async create(email: string, password: string) {
-    const exists = await this.prismaService.user.findUnique({ where: { email } });
+  public async create(
+    fullName: string,
+    email: string,
+    password: string,
+  ): Promise<Omit<User, 'password'> & { account: Account }> {
+    const exists: User | null = await this.prismaService.user.findUnique({
+      where: { email },
+    });
+
     if (exists) {
       throw new ConflictException('Пользователь с таким email уже существует');
     }
 
-    const newUser = await this.prismaService.user.create({
+    const newUser: User = await this.prismaService.user.create({
       data: {
         email,
         password,
       },
     });
 
-    const { password: _, ...otherData } = newUser;
-    return otherData;
+    const account: Account = await this.prismaService.account.create({
+      data: {
+        userId: newUser.id,
+        fullName,
+        constact: {
+          create: [
+            {
+              type: 'EMAIL',
+              value: email,
+            },
+          ],
+        },
+      },
+    });
+
+    const { password: _, ...otherData }: User = newUser;
+    return { ...otherData, account };
   }
 }
