@@ -2,7 +2,9 @@ import 'express-session';
 
 declare module 'express-session' {
   interface SessionData {
-    sessionId?: number;
-    userId?: number;
+    /**
+     * Свойство объекта сессии, которое будет доступна в сессии
+     */
+    userId?: string;
   }
 }

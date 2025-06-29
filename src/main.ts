@@ -1,41 +1,46 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { ValidationPipe } from '@nestjs/common';
+import { RedisStore } from 'connect-redis';
+import { createClient } from 'redis';
 import * as session from 'express-session';
 import * as cookieParser from 'cookie-parser';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = app.get(ConfigService);
-  const port: number = config.get<number>('APPLICATION_PORT') ?? 3000;
+  const redisClient = createClient({ url: process.env.REDIS_URL });
+  redisClient.on('error', (err) => console.error('Redis Client Error', err));
+  await redisClient.connect();
 
-  app.useGlobalPipes(new ValidationPipe());
-  app.setGlobalPrefix('api');
-
-  app.use(cookieParser());
-
-  app.enableCors({
-    origin: 'http://localhost:3000', // url to react app
-    credentials: true,
-  });
+  app.use(cookieParser(config.getOrThrow<string>('COOKIES_SECRET')));
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
   app.use(
     session({
-      secret: config.getOrThrow<string>('SESSION_SECRET'),
-      name: config.getOrThrow<string>('SESSION_NAME'),
-      resave: true,
-      saveUninitialized: false,
-      cookie: { 
-        maxAge: 1000 * 60 * 60,
+      cookie: {
+        maxAge: 36000,
         httpOnly: config.getOrThrow<boolean>('SESSION_HTTP_ONLY'),
-        secure: false,
         sameSite: 'lax',
       },
+      name: config.getOrThrow<string>('SESSION_NAME'),
+      secret: config.getOrThrow<string>('SESSION_SECRET'),
+      store: new RedisStore({
+        client: redisClient,
+        prefix: config.getOrThrow<string>('SESSION_FOLDER'),
+      }),
     }),
   );
 
+  app.enableCors({
+    origin: config.getOrThrow<string>('ALLOWED_ORIGIN'),
+    credentials: true,
+    exposedHeaders: ['set-cookie'],
+  });
+
+  const port: number = config.get<number>('APPLICATION_PORT') ?? 3000;
   await app.listen(port).then(() => {
     console.info(`App running on http://localhost:${port}`);
   });
