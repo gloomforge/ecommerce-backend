@@ -18,12 +18,13 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
+    "jsx": "react",
     "paths": {
-        "@/*": ["src/*"],
-        "@config/*": ["src/config/*"],
-        "@modules/*": ["src/modules/*"],
-        "@prisma/__generated__": ["prisma/__generated__"],
-        "@prisma/__generated__/*": ["prisma/__generated__/*"]
+      "@/*": ["src/*"],
+      "@config/*": ["src/config/*"],
+      "@modules/*": ["src/modules/*"],
+      "@prisma/__generated__": ["prisma/__generated__"],
+      "@prisma/__generated__/*": ["prisma/__generated__/*"]
     }
   }
 }
