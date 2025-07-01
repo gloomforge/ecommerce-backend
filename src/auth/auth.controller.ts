@@ -11,7 +11,6 @@ import {
 import { AuthService } from '@/auth/auth.service';
 import { RegisterDto } from '@/auth/dto/register.dto';
 import { LoginDto } from '@/auth/dto/login.dto';
-import { Request, Response } from 'express';
 
 /**
  * Контроллер для управления авторизацией пользователей
@@ -31,7 +30,7 @@ export class AuthController {
    * @returns ответ от сервиса аутентификации
    */
   @Post('register')
-  public async register(@Req() req: Request, @Body() model: RegisterDto) {
+  public async register(@Req() req, @Body() model: RegisterDto) {
     return this.authService.register(req, model);
   }
 
@@ -43,7 +42,7 @@ export class AuthController {
    */
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  public login(@Req() req: Request, @Body() model: LoginDto) {
+  public login(@Req() req, @Body() model: LoginDto) {
     return this.authService.login(req, model);
   }
 
@@ -54,7 +53,7 @@ export class AuthController {
    */
   @HttpCode(HttpStatus.OK)
   @Get('logout')
-  public logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+  public logout(@Req() req, @Res({ passthrough: true }) res) {
     return this.authService.logout(req, res);
   }
 }

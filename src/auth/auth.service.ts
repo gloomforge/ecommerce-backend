@@ -2,7 +2,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
-  UnauthorizedException
+  UnauthorizedException,
 } from '@nestjs/common';
 import { RegisterDto } from '@/auth/dto/register.dto';
 import { UserService } from '@/user/user.service';
