@@ -25,6 +25,8 @@ async function bootstrap() {
         httpOnly: config.getOrThrow<boolean>('SESSION_HTTP_ONLY'),
         sameSite: 'lax',
       },
+      resave: false,
+      saveUninitialized: false,
       name: config.getOrThrow<string>('SESSION_NAME'),
       secret: config.getOrThrow<string>('SESSION_SECRET'),
       store: new RedisStore({
