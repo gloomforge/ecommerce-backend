@@ -6,6 +6,7 @@ import { createClient } from 'redis';
 import * as session from 'express-session';
 import * as cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,13 +18,15 @@ async function bootstrap() {
 
   app.use(cookieParser(config.getOrThrow<string>('COOKIES_SECRET')));
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.setGlobalPrefix('api');
 
   app.use(
     session({
       cookie: {
-        maxAge: 36000,
+        maxAge: 360000,
         httpOnly: config.getOrThrow<boolean>('SESSION_HTTP_ONLY'),
         sameSite: 'lax',
+        secure: false,
       },
       resave: false,
       saveUninitialized: false,
@@ -35,6 +38,18 @@ async function bootstrap() {
       }),
     }),
   );
+
+  /**
+   * Подключение и настройка документации к API
+   * получить больше сведений по http://localhost${port}/docs
+   */
+  const docs = new DocumentBuilder()
+    .setTitle('Ecommerce documentation')
+    .setDescription('Серверная часть для интернет магазина')
+    .setVersion('0.8.0')
+    .build();
+  const documentFactory = () => SwaggerModule.createDocument(app, docs);
+  SwaggerModule.setup('docs', app, documentFactory);
 
   app.enableCors({
     origin: config.getOrThrow<string>('ALLOWED_ORIGIN'),
